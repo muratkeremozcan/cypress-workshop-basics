@@ -1,47 +1,32 @@
 /// <reference types="cypress" />
 /// <reference path="../../custom-commands.d.ts" />
-// beforeEach(function resetData() {
-//   cy.request('POST', '/reset', {
-//     todos: []
-//   })
-// })
-// beforeEach(function visitSite() {
-//   cy.visit('/')
-// })
+// require('cypress-pipe')
+import { resetData, visitSite } from '../../support/utils'
 
-// it('enters 10 todos', function () {
-//   cy.get('.new-todo')
-//     .type('todo 0{enter}')
-//     .type('todo 1{enter}')
-//     .type('todo 2{enter}')
-//     .type('todo 3{enter}')
-//     .type('todo 4{enter}')
-//     .type('todo 5{enter}')
-//     .type('todo 6{enter}')
-//     .type('todo 7{enter}')
-//     .type('todo 8{enter}')
-//     .type('todo 9{enter}')
-//   cy.get('.todo').should('have.length', 10)
-// })
+beforeEach(resetData)
+beforeEach(visitSite)
 
-// // it('creates a todo')
+// simple custom command
+Cypress.Commands.add('createTodo', (todo) => {
+  cy.get('.new-todo').type(`${todo}{enter}`)
+})
 
-// it.skip('passes when object gets new property', () => {
-//   const o = {}
-//   setTimeout(() => {
-//     o.foo = 'bar'
-//   }, 1000)
-//   // TODO write "get" that returns the given property
-//   // from an object.
-//   // cy.wrap(o).pipe(get('foo'))
-//   // add assertions
-// })
+// with full command log
+Cypress.Commands.add('createTodo', (todo) => {
+  Cypress.log({
+    name: 'create todo',
+    message: todo,
+    consoleProps() {
+      return {
+        'Create todo yo yo': todo
+      }
+    }
+  })
 
-// it('creates todos', () => {
-//   cy.get('.new-todo')
-//     .type('todo 0{enter}')
-//     .type('todo 1{enter}')
-//     .type('todo 2{enter}')
-//   cy.get('.todo').should('have.length', 3)
-//   cy.window().its('app.todos').toMatchSnapshot()
-// })
+  cy.get('.new-todo', { log: false })
+    .type(`${todo}{enter}`, { log: false })
+})
+
+it('creates a todo', () => {
+  cy.createTodo('my first todo')
+})
